@@ -1,12 +1,12 @@
 "use client";
 import useLoginForm from "@/hooks/useLoginForm";
-import { RegisterProps } from "@/interfaces/UserInterfaces";
-import { register } from "@/requets/userRequest";
-import { SignupBody, SignupContainer } from "@/style/SignupComponents";
-import { NikeLogoWrapper } from "@/style/NikeLogo";
+import { register } from "@/requests/userRequest";
+import { NikeLogoWrapper } from "@/styled components/NikeLogo";
 import { FailureLogin } from "@/toasts/UserToasts";
 import {
+  Box,
   Button,
+  Flex,
   Image,
   Input,
   InputGroup,
@@ -16,9 +16,15 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
+import { AxiosResponse } from "axios";
+import { mapRegisterToJson } from "@/utils/MapToJson";
 
 export default function SignUpPage() {
   const router = useRouter();
+  function goToLogin() {
+    router.push("/log-in");
+  }
+
   const toast = useToast();
   const {
     setEmail,
@@ -28,7 +34,7 @@ export default function SignUpPage() {
     name,
     email,
     password,
-    passwordConfirmation,
+    passwordConfirmation: password_confirmation,
     handleShowPassClick,
     handleShowPassConfClick,
     showPass,
@@ -38,33 +44,34 @@ export default function SignUpPage() {
   } = useLoginForm();
 
   async function sendRegisterRequest() {
-    let registerUserData: RegisterProps = {
-      name: name,
-      email: email,
-      password: password,
-      password_confirmation: passwordConfirmation,
-    };
+    let registerUserData = mapRegisterToJson(
+      name,
+      email,
+      password,
+      password_confirmation
+    );
+
     await register(registerUserData)
-      .then((response) => {
+      .then((response: AxiosResponse) => {
         if (response.status === 422) {
           // router.push("/home");
           toast(FailureLogin);
         }
       })
-      .catch((err) => {
-        // console.log(err);
+      .catch((err: Error) => {
+        console.log(err);
       });
   }
 
   const signUpButton =
     isEmailValid &&
     isPasswordValid &&
-    passwordConfirmation === password &&
-    passwordConfirmation.length > 6 &&
+    password_confirmation === password &&
+    password_confirmation.length > 6 &&
     name.length > 4 ? (
       <Button
         _hover={{
-          bg: "cyan.100",
+          bg: "var(--button-hover-color)",
         }}
         marginTop="20px"
         onClick={sendRegisterRequest}
@@ -87,110 +94,112 @@ export default function SignUpPage() {
     );
 
   return (
-    <SignupBody>
-      <NikeLogoWrapper>
-        <Image
-          src="./nike.svg"
-          objectFit="cover"
-          alt="nike-logo"
-          filter="invert(1)"
-          width={300}
-        />
-      </NikeLogoWrapper>
-      <SignupContainer>
-        <Stack spacing={4} width={500}>
-          {/* Name */}
-          <Input
-            color="white"
-            isInvalid={name.length <= 4}
-            borderColor="green.200"
-            placeholder="Your name"
-            _placeholder={{ color: "white" }}
-            size="lg"
-            onChange={(e) => setName(e.target.value)}
+    <Box bg={"black"}>
+      <Flex direction={"column"} justifyContent={"center"} height={"100vh"}>
+        <NikeLogoWrapper>
+          <Image
+            src="./nike.svg"
+            objectFit="cover"
+            alt="nike-logo"
+            filter="invert(1)"
+            width={300}
           />
-          {/* Email  */}
-          <Input
-            color="white"
-            isInvalid={!isEmailValid}
-            borderColor="green.200"
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email address"
-            _placeholder={{ color: "white" }}
-            size="lg"
-          />
-          {/* Password */}
-          <InputGroup size="md">
+        </NikeLogoWrapper>
+        <Flex padding={17} direction={"row"} justifyContent={"center"}>
+          <Stack spacing={4} width={500}>
+            {/* Name */}
             <Input
-              size="lg"
               color="white"
-              type={showPass ? "text" : "password"}
-              placeholder="Enter password"
+              focusBorderColor="purple.700"
+              placeholder="Your name"
               _placeholder={{ color: "white" }}
-              isInvalid={!isPasswordValid}
-              borderColor="green.200"
-              onChange={(e) => setPassword(e.target.value)}
+              size="lg"
+              onChange={(e) => setName(e.target.value)}
             />
-            <InputRightElement width="4.5rem">
+            {/* Email  */}
+            <Input
+              color="white"
+              focusBorderColor="purple.700"
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email address"
+              _placeholder={{ color: "white" }}
+              size="lg"
+            />
+            {/* Password */}
+            <InputGroup size="md">
+              <Input
+                focusBorderColor="purple.700"
+                size="lg"
+                color="white"
+                type={showPass ? "text" : "password"}
+                placeholder="Enter password"
+                _placeholder={{ color: "white" }}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <InputRightElement width="4.5rem">
+                <Button
+                  h="1.75rem"
+                  size="sm"
+                  onClick={handleShowPassClick}
+                  _hover={{
+                    bg: "var(--button-hover-color)",
+                  }}
+                >
+                  {showPass ? (
+                    <Image src="./eye_open.svg" width={5} alt="eye" />
+                  ) : (
+                    <Image src="./eye_close.svg" width={5} alt="eye" />
+                  )}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
+            {/* Password confirmation */}
+            <InputGroup size="md">
+              <Input
+                color="white"
+                size="lg"
+                type={showPassConf ? "text" : "password"}
+                placeholder="Confirm password"
+                _placeholder={{ color: "white" }}
+                focusBorderColor="purple.700"
+                onChange={(e) => setPasswordConfirmation(e.target.value)}
+              />
+              <InputRightElement width="4.5rem">
+                <Button
+                  h="1.75rem"
+                  size="sm"
+                  onClick={handleShowPassConfClick}
+                  _hover={{
+                    bg: "var(--button-hover-color)",
+                  }}
+                >
+                  {showPassConf ? (
+                    <Image src="./eye_open.svg" width={5} alt="eye" />
+                  ) : (
+                    <Image src="./eye_close.svg" width={5} alt="eye" />
+                  )}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
+            <Flex gap={5} justifyContent={"center"} direction={"row"}>
+              <Text fontSize={17} color="white">
+                You already have an account?
+              </Text>
               <Button
                 h="1.75rem"
                 size="sm"
-                onClick={handleShowPassClick}
                 _hover={{
-                  bg: "cyan.200",
+                  bg: "var(--button-hover-color)",
                 }}
+                onClick={goToLogin}
               >
-                {showPass ? "Hide" : "Show"}
+                Go to Log in
               </Button>
-            </InputRightElement>
-          </InputGroup>
-          {/* Password confirmation */}
-          <InputGroup size="md">
-            <Input
-              color="white"
-              size="lg"
-              type={showPassConf ? "text" : "password"}
-              placeholder="Confirm password"
-              isInvalid={passwordConfirmation !== password || !isPasswordValid}
-              borderColor="green.200"
-              _placeholder={{ color: "white" }}
-              onChange={(e) => setPasswordConfirmation(e.target.value)}
-            />
-            <InputRightElement width="4.5rem">
-              <Button
-                h="1.75rem"
-                size="sm"
-                onClick={handleShowPassConfClick}
-                _hover={{
-                  bg: "cyan.200",
-                }}
-              >
-                {showPassConf ? "Hide" : "Show"}
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-          <Stack
-            spacing={3}
-            display="flex"
-            flexDirection="row"
-            justifyContent="center"
-          >
-            <Text fontSize={17} color="white">
-              You already have an account?
-            </Text>
-            <Button
-              h="1.75rem"
-              size="sm"
-              _hover={{
-                bg: "cyan.200",
-              }}
-            >
-              Log in
-            </Button>
+            </Flex>
+            {signUpButton}
           </Stack>
-          {signUpButton}
-        </Stack>
-      </SignupContainer>
-    </SignupBody>
+        </Flex>
+      </Flex>
+    </Box>
   );
 }

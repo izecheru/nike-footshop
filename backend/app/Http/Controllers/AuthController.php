@@ -29,7 +29,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
         return $this->success([
-            'token' => $user->createToken('Api Token of' . $user->name)->plainTextToken
+            'token' => $user->createToken('Api Token of ' . $user->name)->plainTextToken
         ]);
     }
 
@@ -46,7 +46,7 @@ class AuthController extends Controller
 
         return $this->success([
             'user' => $user,
-            'token' => $user->createToken('API  Token of' . $user->name)->plainTextToken
+            'token' => $user->createToken('API  Token of ' . $user->name)->plainTextToken
         ]);
     }
 

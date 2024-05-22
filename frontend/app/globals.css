@@ -1,4 +1,15 @@
 @media (prefers-color-scheme: dark) {
+  :root {
+    background-color: #000000;
+
+    --nike-red: #ba2b2b;
+    --nike-green: #005147;
+    --nike-orange: #ea553b;
+    --nike-gray: #a9a6a6;
+    --nike-light-green: #9dd44f;
+
+    --button-hover-color: #9dd44f;
+  }
 }
 
 * {
